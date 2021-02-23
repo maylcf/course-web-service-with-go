@@ -17,14 +17,17 @@ func handleProducts(w http.ResponseWriter, r *http.Request) {
 	switch r.Method {
 	case http.MethodGet:
 		productList := getProductList()
+
 		j, err := json.Marshal(productList)
 		if err != nil {
 			log.Fatal(err)
 		}
+
 		_, err = w.Write(j)
 		if err != nil {
 			log.Fatal(err)
 		}
+
 	case http.MethodPost:
 		var product Product
 		err := json.NewDecoder(r.Body).Decode(&product)
@@ -33,15 +36,19 @@ func handleProducts(w http.ResponseWriter, r *http.Request) {
 			w.WriteHeader(http.StatusBadRequest)
 			return
 		}
+
 		_, err = addOrUpdateProduct(product)
 		if err != nil {
 			log.Print(err)
 			w.WriteHeader(http.StatusBadRequest)
 			return
 		}
+
 		w.WriteHeader(http.StatusCreated)
+
 	case http.MethodOptions:
 		return
+
 	default:
 		w.WriteHeader(http.StatusMethodNotAllowed)
 	}
@@ -53,12 +60,14 @@ func handleProduct(w http.ResponseWriter, r *http.Request) {
 		w.WriteHeader(http.StatusBadRequest)
 		return
 	}
+
 	productID, err := strconv.Atoi(urlPathSegments[len(urlPathSegments)-1])
 	if err != nil {
 		log.Print(err)
 		w.WriteHeader(http.StatusNotFound)
 		return
 	}
+
 	switch r.Method {
 	case http.MethodGet:
 		product := getProduct(productID)
@@ -66,12 +75,14 @@ func handleProduct(w http.ResponseWriter, r *http.Request) {
 			w.WriteHeader(http.StatusNotFound)
 			return
 		}
+
 		j, err := json.Marshal(product)
 		if err != nil {
 			log.Print(err)
 			w.WriteHeader(http.StatusBadRequest)
 			return
 		}
+
 		_, err = w.Write(j)
 		if err != nil {
 			log.Fatal(err)
@@ -85,21 +96,25 @@ func handleProduct(w http.ResponseWriter, r *http.Request) {
 			w.WriteHeader(http.StatusBadRequest)
 			return
 		}
+
 		if product.ProductID != productID {
 			w.WriteHeader(http.StatusBadRequest)
 			return
 		}
+
 		_, err = addOrUpdateProduct(product)
 		if err != nil {
 			log.Print(err)
 			w.WriteHeader(http.StatusBadRequest)
 			return
 		}
+
 	case http.MethodDelete:
 		removeProduct(productID)
 
 	case http.MethodOptions:
 		return
+
 	default:
 		w.WriteHeader(http.StatusMethodNotAllowed)
 	}
@@ -109,6 +124,7 @@ func handleProduct(w http.ResponseWriter, r *http.Request) {
 func SetupRoutes(apiBasePath string) {
 	productsHandler := http.HandlerFunc(handleProducts)
 	productHandler := http.HandlerFunc(handleProduct)
+
 	http.Handle(fmt.Sprintf("%s/%s", apiBasePath, productsPath), cors.Middleware(productsHandler))
 	http.Handle(fmt.Sprintf("%s/%s/", apiBasePath, productsPath), cors.Middleware(productHandler))
 }

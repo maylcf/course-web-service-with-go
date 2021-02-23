@@ -23,11 +23,13 @@ func init() {
 	if err != nil {
 		log.Fatal(err)
 	}
+
 	fmt.Printf("%d products loaded...\n", len(productMap.m))
 }
 
 func loadProductMap() (map[int]Product, error) {
 	fileName := "products.json"
+
 	_, err := os.Stat(fileName)
 	if os.IsNotExist(err) {
 		return nil, fmt.Errorf("file [%s] does not exist", fileName)
@@ -39,10 +41,12 @@ func loadProductMap() (map[int]Product, error) {
 	if err != nil {
 		log.Fatal(err)
 	}
+
 	prodMap := make(map[int]Product)
 	for i := 0; i < len(productList); i++ {
 		prodMap[productList[i].ProductID] = productList[i]
 	}
+
 	return prodMap, nil
 }
 
@@ -63,22 +67,28 @@ func removeProduct(productID int) {
 
 func getProductList() []Product {
 	productMap.RLock()
+
 	products := make([]Product, 0, len(productMap.m))
 	for _, value := range productMap.m {
 		products = append(products, value)
 	}
+
 	productMap.RUnlock()
+
 	return products
 }
 
 func getProductIds() []int {
 	productMap.RLock()
+
 	productIds := []int{}
 	for key := range productMap.m {
 		productIds = append(productIds, key)
 	}
+
 	productMap.RUnlock()
 	sort.Ints(productIds)
+
 	return productIds
 }
 
@@ -101,8 +111,10 @@ func addOrUpdateProduct(product Product) (int, error) {
 		addOrUpdateID = getNextProductID()
 		product.ProductID = addOrUpdateID
 	}
+
 	productMap.Lock()
 	productMap.m[addOrUpdateID] = product
 	productMap.Unlock()
+
 	return addOrUpdateID, nil
 }
