@@ -9,6 +9,7 @@ import (
 	"strings"
 
 	"github.com/maylcf/learning-go/cors"
+	"golang.org/x/net/websocket"
 )
 
 const productsPath = "products"
@@ -75,11 +76,11 @@ func handleProduct(w http.ResponseWriter, r *http.Request) {
 	switch r.Method {
 	case http.MethodGet:
 		product, err := getProduct(productID)
-        if err != nil {
-            log.Print(err)
-            w.WriteHeader(http.StatusBadRequest)
-            return
-        }
+		if err != nil {
+			log.Print(err)
+			w.WriteHeader(http.StatusBadRequest)
+			return
+		}
 
 		if product == nil {
 			w.WriteHeader(http.StatusNotFound)
@@ -135,6 +136,7 @@ func SetupRoutes(apiBasePath string) {
 	productsHandler := http.HandlerFunc(handleProducts)
 	productHandler := http.HandlerFunc(handleProduct)
 
+	http.Handle("/websocket", websocket.Handler(productSocket))
 	http.Handle(fmt.Sprintf("%s/%s", apiBasePath, productsPath), cors.Middleware(productsHandler))
 	http.Handle(fmt.Sprintf("%s/%s/", apiBasePath, productsPath), cors.Middleware(productHandler))
 }
